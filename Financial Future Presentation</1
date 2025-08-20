@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Financial Future Presentation</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Inter Font -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&display=swap">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #1a202c; /* Dark background for a modern feel */
+            color: #e2e8f0; /* Light text for contrast */
+        }
+        .container {
+            max-width: 800px;
+        }
+        .card {
+            background-color: #2d3748; /* Dark card background */
+            border-radius: 1.5rem;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2), 0 10px 10px -5px rgba(0, 0, 0, 0.1);
+            border: 1px solid #4a5568;
+        }
+        .progress-bar {
+            height: 10px;
+            background-color: #4a5568;
+            border-radius: 9999px;
+            overflow: hidden;
+        }
+        .progress {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2); /* Gradient progress bar */
+            transition: width 0.5s ease-in-out;
+            border-radius: 9999px;
+        }
+        .correct {
+            background-color: #10b981;
+            box-shadow: 0 0 10px #10b981;
+        }
+        .incorrect {
+            background-color: #ef4444;
+            box-shadow: 0 0 10px #ef4444;
+        }
+        .next-button-enabled {
+            cursor: pointer;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .next-button-enabled:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(118, 75, 162, 0.5);
+        }
+        .next-button-disabled {
+            cursor: not-allowed;
+            opacity: 0.5;
+            background: #4a5568;
+        }
+        .nav-button {
+            transition: transform 0.2s ease, background-color 0.2s ease;
+        }
+        .nav-button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            background-color: #4a5568;
+        }
+        .nav-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .option-btn {
+            background-color: #4a5568;
+            border-color: #4a5568;
+            color: #e2e8f0;
+            transition: transform 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+        }
+        .option-btn:hover:not(:disabled) {
+            background-color: #636b76;
+            transform: translateY(-2px);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+        .option-btn:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(118, 75, 162, 0.5);
+        }
+    </style>
+</head>
+<body class="p-8 flex items-center justify-center min-h-screen">
+    <!-- Main Container -->
+    <div class="container mx-auto card p-8 flex flex-col h-[600px] w-full max-w-4xl">
+        <!-- Progress Bar -->
+        <div class="progress-bar mb-6">
+            <div id="progress-indicator" class="progress" style="width: 0%;"></div>
+        </div>
+        
+        <!-- Slide Content Area -->
+        <div id="slide-content" class="flex-grow flex flex-col justify-center">
+            <!-- Content will be rendered here by JavaScript -->
+        </div>
+
+        <!-- Feedback Message for Quiz -->
+        <div id="quiz-feedback" class="mt-4 p-4 rounded-xl text-center font-medium hidden"></div>
+
+        <!-- Navigation Buttons -->
+        <div class="mt-6 flex justify-between items-center">
+            <button id="prev-btn" class="nav-button bg-gray-200 text-gray-700 font-bold py-2 px-6 rounded-xl shadow-md disabled:opacity-50 disabled:cursor-not-allowed">
+                Previous
+            </button>
+            <button id="next-btn" class="nav-button bg-blue-500 text-white font-bold py-2 px-6 rounded-xl shadow-md">
+                Next
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Array of all presentation slides, including content and quiz questions.
+        const slides = [
+            {
+                type: 'content',
+                title: 'The Danger of the Past',
+                content: `
+                    <p class="text-xl leading-relaxed">The greatest danger to your financial future is attempting to make a living in the past. Times are changing so fast that changes that used to take centuries can now happen in a month.</p>
+                `
+            },
+            {
+                type: 'content',
+                title: 'The History of Wealth',
+                content: `
+                    <p class="text-xl leading-relaxed">To solve the mystery of wealth, you must understand the history of wealth.</p>
+                    <p class="mt-4 text-gray-400">This presentation will walk you through the different "Ages" of wealth creation, from the dawn of humanity to the present day.</p>
+                `
+            },
+            {
+                type: 'content',
+                title: 'The Agricultural Age',
+                content: `
+                    <h3 class="text-lg font-bold mb-2 text-purple-400">B.C. to Mid-1700s</h3>
+                    <p class="text-xl leading-relaxed">The economic infrastructure was based on **agriculture and land**. The people who owned the land owned the wealth, and there was no middle class.</p>
+                `
+            },
+            {
+                type: 'content',
+                title: 'The Industrial Age',
+                content: `
+                    <h3 class="text-lg font-bold mb-2 text-purple-400">Mid-1700s to 1950s</h3>
+                    <p class="text-xl leading-relaxed">**Machines equaled wealth**. This era made wealth creation by the poor a possibility for the first time in history.</p>
+                `
+            },
+            {
+                type: 'content',
+                title: 'The Distribution Age',
+                content: `
+                    <h3 class="text-lg font-bold mb-2 text-purple-400">1950s to 1978</h3>
+                    <p class="text-xl leading-relaxed">**Outlets**, such as department stores and malls, equaled wealth.</p>
+                `
+            },
+            {
+                type: 'content',
+                title: 'The Technology Age',
+                content: `
+                    <h3 class="text-lg font-bold mb-2 text-purple-400">1978 to 1994</h3>
+                    <p class="text-xl leading-relaxed">Wealth came from **"techno-how"**—knowing how to use technology to leverage information.</p>
+                `
+            },
+            {
+                type: 'content',
+                title: 'The Information Age',
+                content: `
+                    <h3 class="text-lg font-bold mb-2 text-purple-400">1994 to 2003</h3>
+                    <p class="text-xl leading-relaxed">Wealth was no longer about ownership but about **control of the flow of information**.</p>
+                `
+            },
+            {
+                type: 'content',
+                title: 'The Partnership Age',
+                content: `
+                    <h3 class="text-lg font-bold mb-2 text-purple-400">2008 to 2021</h3>
+                    <p class="text-xl leading-relaxed">Wealth came from **strategic partnerships**, such as podcasts and interviews.</p>
+                `
+            },
+            {
+                type: 'quiz',
+                title: 'Test Your Knowledge: The Ages',
+                question: 'In which age did "techno-how" become the primary source of wealth?',
+                options: ['The Distribution Age', 'The Information Age', 'The Technology Age', 'The Industrial Age'],
+                answerIndex: 2
+            },
+            {
+                type: 'content',
+                title: 'Picasso and Creativity',
+                content: `
+                    <p class="text-xl leading-relaxed text-center font-medium italic">"Good artists copy, great artists steal."</p>
+                    <p class="mt-4 text-center">In the AI Age, this means taking existing ideas and leveraging technology to transform them into something entirely new. AI is a tool for this "theft" of ideas.</p>
+                `
+            },
+            {
+                type: 'content',
+                title: 'Four Levels of Value in the AI Age',
+                content: `
+                    <p class="text-xl leading-relaxed">In the **AI Age**, understanding the four levels of value is crucial for wealth creation. We will start with the lowest level of value and work our way up.</p>
+                `
+            },
+            {
+                type: 'content',
+                title: '1. Implementation',
+                content: `
+                    <h3 class="text-lg font-bold mb-2 text-purple-400">Lowest Level</h3>
+                    <p class="text-xl leading-relaxed">This is the lowest level of value, where you use **muscles over time** to make money (e.g., labor).</p>
+                `
+            },
+            {
+                type: 'content',
+                title: '2. Unification',
+                content: `
+                    <h3 class="text-lg font-bold mb-2 text-purple-400">Second Lowest Level</h3>
+                    <p class="text-xl leading-relaxed">This level uses **management skills** to make money (e.g., managing a team of implementers).</p>
+                `
+            },
+            {
+                type: 'content',
+                title: '3. Communication',
+                content: `
+                    <h3 class="text-lg font-bold mb-2 text-purple-400">Third Level</h3>
+                    <p class="text-xl leading-relaxed">This is where you use your **mouth to create messages** and conversations that generate cash flow.</p>
+                `
+            },
+            {
+                type: 'content',
+                title: '4. Imagination',
+                content: `
+                    <h3 class="text-lg font-bold mb-2 text-purple-400">Highest Level</h3>
+                    <p class="text-xl leading-relaxed">This is the highest level of value, where you use your **mind to create value** for others.</p>
+                `
+            },
+            {
+                type: 'quiz',
+                title: 'Test Your Knowledge: Value Levels',
+                question: 'What is the highest level of value you can provide in the AI Age?',
+                options: ['Implementation', 'Unification', 'Communication', 'Imagination'],
+                answerIndex: 3
+            },
+            {
+                type: 'content',
+                title: 'Applying the Principles: Imagination',
+                content: `
+                    <p class="text-xl leading-relaxed">**How to execute:** Practice thinking of new solutions to old problems. Use AI to brainstorm, research, and prototype ideas quickly. Don't be afraid to combine unrelated concepts to create a new product or service.</p>
+                `
+            },
+            {
+                type: 'content',
+                title: 'Applying the Principles: Communication',
+                content: `
+                    <p class="text-xl leading-relaxed">**How to execute:** Build a personal brand. Use social media, podcasts, and blogs to share your expertise. Leverage AI to help write scripts, generate content ideas, and analyze audience engagement to refine your message.</p>
+                `
+            },
+            {
+                type: 'content',
+                title: 'You Are Ready!',
+                content: `
+                    <p class="text-xl leading-relaxed text-center font-bold">You have completed the presentation!</p>
+                    <p class="mt-4 text-center">Remember the importance of adapting to change and focusing on imagination and communication.</p>
+                `
+            }
+        ];
+
+        let currentSlideIndex = 0;
+        const slideContent = document.getElementById('slide-content');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const quizFeedback = document.getElementById('quiz-feedback');
+        const progressIndicator = document.getElementById('progress-indicator');
+
+        // Function to render the current slide
+        function renderSlide() {
+            const slide = slides[currentSlideIndex];
+            slideContent.innerHTML = ''; // Clear previous content
+
+            // Create title and content elements
+            const titleElement = document.createElement('h2');
+            titleElement.className = 'text-3xl font-extrabold mb-6 text-center text-purple-300';
+            titleElement.textContent = slide.title;
+
+            slideContent.appendChild(titleElement);
+
+            if (slide.type === 'content') {
+                const contentWrapper = document.createElement('div');
+                contentWrapper.className = 'text-center';
+                contentWrapper.innerHTML = slide.content;
+                slideContent.appendChild(contentWrapper);
+                
+                // Disable next button if it's the last slide
+                if (currentSlideIndex === slides.length - 1) {
+                    nextBtn.disabled = true;
+                    nextBtn.classList.remove('next-button-enabled');
+                    nextBtn.classList.add('next-button-disabled');
+                } else {
+                    nextBtn.disabled = false;
+                    nextBtn.classList.remove('next-button-disabled');
+                    nextBtn.classList.add('next-button-enabled');
+                }
+            } else if (slide.type === 'quiz') {
+                const questionElement = document.createElement('p');
+                questionElement.className = 'text-xl leading-relaxed mb-6 text-center font-semibold text-gray-300';
+                questionElement.textContent = slide.question;
+                slideContent.appendChild(questionElement);
+
+                const optionsContainer = document.createElement('div');
+                optionsContainer.className = 'flex flex-col space-y-4';
+                slide.options.forEach((option, index) => {
+                    const optionButton = document.createElement('button');
+                    optionButton.className = 'option-btn font-medium py-3 px-6 rounded-xl border border-gray-600 transition-all duration-200 hover:bg-gray-600';
+                    optionButton.textContent = option;
+                    optionButton.dataset.index = index;
+                    optionButton.addEventListener('click', handleQuizAnswer);
+                    optionsContainer.appendChild(optionButton);
+                });
+                slideContent.appendChild(optionsContainer);
+                
+                // On quiz slide, disable the 'Next' button until a correct answer is chosen
+                nextBtn.disabled = true;
+                nextBtn.classList.remove('next-button-enabled');
+                nextBtn.classList.add('next-button-disabled');
+            }
+
+            // Update the progress bar
+            const progressPercentage = (currentSlideIndex / (slides.length - 1)) * 100;
+            progressIndicator.style.width = `${progressPercentage}%`;
+
+            // Enable/disable navigation buttons
+            prevBtn.disabled = currentSlideIndex === 0;
+            quizFeedback.classList.add('hidden');
+        }
+
+        // Function to handle quiz answers
+        function handleQuizAnswer(event) {
+            const selectedButton = event.target;
+            const selectedIndex = parseInt(selectedButton.dataset.index);
+            const slide = slides[currentSlideIndex];
+
+            // Disable all option buttons after a choice is made
+            document.querySelectorAll('.option-btn').forEach(btn => btn.disabled = true);
+
+            if (selectedIndex === slide.answerIndex) {
+                // Correct answer
+                selectedButton.classList.add('correct', 'text-white');
+                quizFeedback.textContent = 'Correct! You can now move on.';
+                quizFeedback.className = 'mt-4 p-4 rounded-xl text-center font-medium bg-green-900 text-green-300';
+                
+                nextBtn.disabled = false;
+                nextBtn.classList.remove('next-button-disabled');
+                nextBtn.classList.add('next-button-enabled');
+            } else {
+                // Incorrect answer
+                selectedButton.classList.add('incorrect', 'text-white');
+                quizFeedback.textContent = 'Incorrect. Please try again.';
+                quizFeedback.className = 'mt-4 p-4 rounded-xl text-center font-medium bg-red-900 text-red-300';
+
+                // Find the correct button and highlight it for the user
+                const correctButton = document.querySelector(`.option-btn[data-index="${slide.answerIndex}"]`);
+                if (correctButton) {
+                    correctButton.classList.add('correct', 'text-white');
+                }
+            }
+            quizFeedback.classList.remove('hidden');
+        }
+
+        // Event listener for the Next button
+        nextBtn.addEventListener('click', () => {
+            if (currentSlideIndex < slides.length - 1) {
+                currentSlideIndex++;
+                renderSlide();
+            }
+        });
+
+        // Event listener for the Previous button
+        prevBtn.addEventListener('click', () => {
+            if (currentSlideIndex > 0) {
+                currentSlideIndex--;
+                renderSlide();
+            }
+        });
+
+        // Initial render
+        renderSlide();
+    </script>
+</body>
+</html>
